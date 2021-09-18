@@ -222,16 +222,17 @@ func New(stack *node.Node, config *ethconfig.Config) (*Ethereum, error) {
 	}
 
 	if eth.handler, err = newHandler(&handlerConfig{
-		Database:        chainDb,
-		Chain:           eth.blockchain,
-		TxPool:          eth.txPool,
-		Network:         config.NetworkId,
-		Sync:            config.SyncMode,
-		BloomCache:      uint64(cacheLimit),
-		EventMux:        eth.eventMux,
-		Checkpoint:      checkpoint,
-		Whitelist:       config.Whitelist,
-		DirectBroadcast: config.DirectBroadcast,
+		Database:               chainDb,
+		Chain:                  eth.blockchain,
+		TxPool:                 eth.txPool,
+		Network:                config.NetworkId,
+		Sync:                   config.SyncMode,
+		BloomCache:             uint64(cacheLimit),
+		EventMux:               eth.eventMux,
+		Checkpoint:             checkpoint,
+		Whitelist:              config.Whitelist,
+		DirectBroadcast:        config.DirectBroadcast,
+		DisablePeerTxBroadcast: config.DisablePeerTxBroadcast,
 	}); err != nil {
 		return nil, err
 	}
