@@ -26,6 +26,7 @@ import (
 	"math/big"
 	"os"
 	"runtime"
+	"strings"
 	"sync"
 	"time"
 
@@ -818,9 +819,18 @@ func (api *API) traceTx(ctx context.Context, message core.Message, txctx *txTrac
 				return nil, err
 			}
 		}
-		// Constuct the JavaScript tracer to execute with
-		if tracer, err = New(*config.Tracer, txContext); err != nil {
-			return nil, err
+		// TODO(suquark): Only check the prefix, so later we can inject other arguments
+		// e.g. database paths into the string.
+		if strings.HasPrefix(*config.Tracer, "@raw_tracer") {
+			// Construct the native golang tracer.
+			if tracer, err = NewRawTracer(*config.Tracer, txContext); err != nil {
+				return nil, err
+			}
+		} else {
+			// Constuct the JavaScript tracer to execute with
+			if tracer, err = New(*config.Tracer, txContext); err != nil {
+				return nil, err
+			}
 		}
 		// Handle timeouts and RPC cancellations
 		deadlineCtx, cancel := context.WithTimeout(ctx, timeout)
@@ -874,6 +884,8 @@ func (api *API) traceTx(ctx context.Context, message core.Message, txctx *txTrac
 		}, nil
 
 	case *Tracer:
+		return tracer.GetResult()
+	case *RawTracer:
 		return tracer.GetResult()
 
 	default:
